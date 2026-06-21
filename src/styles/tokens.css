@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ReFrame design tokens — mirrored as CSS variables so the 3D builder and
+   non-Tailwind contexts can read the same palette. Keep in sync with
+   tailwind.config.js. */
+:root {
+  --paper: #f5f2ec;
+  --surface: #fbfaf6;
+  --ink: #1b1812;
+  --graphite: #3a352d;
+  --stone: #6a645a;
+  --silt: #938c7f;
+  --hairline: #e2dcd0;
+  --clay: #9c5b3b;
+  --clay-deep: #7c4327;
+  --moss: #586343;
+
+  --family-panel: #b98a63;
+  --family-glazing: #8fa7a6;
+  --family-substructure: #9aa0a4;
+  --family-shading: #a8946f;
+
+  /* 3D builder environment */
+  --builder-bg-top: #ece6da;
+  --builder-bg-bottom: #d8cfbe;
+  --builder-grid: #b9b0a0;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans text-body antialiased;
+  }
+
+  ::selection {
+    background: var(--clay);
+    color: #fff;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink;
+    font-weight: 500;
+  }
+
+  /* Visible keyboard focus for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--clay);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  /* Small uppercase editorial label */
+  .eyebrow {
+    @apply font-mono text-micro uppercase tracking-label text-stone;
+  }
+
+  /* Page container */
+  .container-content {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+  }
+
+  /* Hairline rule */
+  .rule {
+    @apply border-t border-hairline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
