@@ -4,6 +4,7 @@ import { Edges, Html, TransformControls } from '@react-three/drei';
 import type { Mesh } from 'three';
 import type { Material, SceneModule } from '@/domain/types';
 import { familyHex } from '@/lib/swatch';
+import { pendingPositions } from './pendingPositions';
 
 interface ModuleMeshProps {
   module: SceneModule;
@@ -62,10 +63,20 @@ export function ModuleMesh({
       showZ={false}
       size={0.7}
       onMouseDown={disableOrbit}
-      onMouseUp={enableOrbit}
-      onChange={() => {
+      onMouseUp={() => {
+        enableOrbit();
+        // Flush pending position to the store now that drag is done.
         const p = meshRef.current?.position;
-        if (p) onCommitPosition(module.id, [p.x, p.y, p.z]);
+        if (p) {
+          pendingPositions.delete(module.id);
+          onCommitPosition(module.id, [p.x, p.y, p.z]);
+        }
+      }}
+      onChange={() => {
+        // Track position in a plain Map — no Zustand update, no React re-render,
+        // so TransformControls can drag freely without being interrupted.
+        const p = meshRef.current?.position;
+        if (p) pendingPositions.set(module.id, [p.x, p.y, p.z]);
       }}
     >
       {mesh}

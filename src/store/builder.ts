@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { SceneModule, SceneSettings } from '@/domain/types';
 import { STORAGE_KEYS } from '@/lib/storage';
+import { pendingPositions } from '@/builder/pendingPositions';
 
 export const DEFAULT_SETTINGS: SceneSettings = {
   gridSize: 0.5,
@@ -82,7 +83,25 @@ export const useBuilderStore = create<BuilderState>()(
         set((s) => ({ modules: [...s.modules, copy], selectedId: copy.id }));
       },
 
-      select: (id) => set({ selectedId: id }),
+      select: (id) =>
+        set((s) => {
+          // Flush any in-progress drag position for the module being deselected
+          // so the commit and the selectedId change happen in one atomic update.
+          const pending = s.selectedId ? pendingPositions.get(s.selectedId) : undefined;
+          if (pending && s.selectedId) {
+            pendingPositions.delete(s.selectedId);
+            const { snap: snapOn, gridSize } = s.settings;
+            return {
+              selectedId: id,
+              modules: s.modules.map((m) =>
+                m.id === s.selectedId
+                  ? { ...m, position: [snap(pending[0], gridSize, snapOn), snap(pending[1], gridSize, snapOn), pending[2]] as [number, number, number] }
+                  : m,
+              ),
+            };
+          }
+          return { selectedId: id };
+        }),
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       clear: () => set({ modules: [], selectedId: null }),
     }),
