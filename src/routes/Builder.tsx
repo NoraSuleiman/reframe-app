@@ -20,7 +20,7 @@ function webglAvailable(): boolean {
 }
 
 export default function Builder() {
-  const { modules, settings, selectedId, addModule, updateModule, removeModule, duplicateModule, select, setSettings, clear } =
+  const { modules, settings, selectedId, addModule, updateModule, removeModule, duplicateModule, toggleLock, select, setSettings, clear } =
     useBuilderStore();
   const { byId } = useEntries([]);
   const api = useRef<BuilderApi>({ place: null, setView: null });
@@ -171,6 +171,7 @@ export default function Builder() {
           onUpdateSelected={(patch) => selectedId && updateModule(selectedId, patch)}
           onDuplicate={() => selectedId && duplicateModule(selectedId)}
           onRemove={() => selectedId && removeModule(selectedId)}
+          onToggleLock={() => selectedId && toggleLock(selectedId)}
           onSave={() => flash('Scene saved to this browser')}
           onClear={() => {
             if (modules.length && confirm('Remove all modules from the scene?')) clear();

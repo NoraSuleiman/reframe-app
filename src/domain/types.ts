@@ -72,6 +72,7 @@ export interface SceneModule {
   position: [number, number, number]; // x, y, z (metres)
   size: { width: number; height: number; depth: number };
   rotationY: number; // radians, 90° increments
+  locked?: boolean;
 }
 
 export interface SceneSettings {

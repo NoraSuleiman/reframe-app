@@ -26,6 +26,7 @@ interface SidebarProps {
   onUpdateSelected: (patch: Partial<SceneModule>) => void;
   onDuplicate: () => void;
   onRemove: () => void;
+  onToggleLock: () => void;
   onSave: () => void;
   onClear: () => void;
 }
@@ -51,6 +52,7 @@ export function Sidebar({
   onUpdateSelected,
   onDuplicate,
   onRemove,
+  onToggleLock,
   onSave,
   onClear,
 }: SidebarProps) {
@@ -97,17 +99,27 @@ export function Sidebar({
               onClick={() =>
                 onUpdateSelected({ rotationY: (selected.rotationY + Math.PI / 2) % (Math.PI * 2) })
               }
+              disabled={!!selected.locked}
             >
               Rotate 90°
             </Button>
             <Button size="sm" variant="secondary" onClick={onDuplicate}>
               Duplicate
             </Button>
+            <Button
+              size="sm"
+              variant={selected.locked ? 'accent' : 'secondary'}
+              onClick={onToggleLock}
+            >
+              {selected.locked ? '🔒 Locked' : '🔓 Lock'}
+            </Button>
             <Button size="sm" variant="danger" onClick={onRemove}>
               Delete
             </Button>
           </div>
-          <p className="mt-2 text-caption text-stone">Drag the handles in the canvas to reposition.</p>
+          <p className="mt-2 text-caption text-stone">
+            {selected.locked ? 'Unlock to move or rotate this module.' : 'Drag the handles in the canvas to reposition.'}
+          </p>
         </Section>
       )}
 

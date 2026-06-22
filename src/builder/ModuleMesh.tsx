@@ -54,27 +54,27 @@ export function ModuleMesh({
       rotation={[0, module.rotationY, 0]}
       onPointerDown={(e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation();
-        onSelect(module.id);
+        if (!module.locked) onSelect(module.id);
       }}
       castShadow
     >
       <boxGeometry args={[module.size.width, module.size.height, module.size.depth]} />
       <meshStandardMaterial color={color} roughness={0.72} metalness={material?.family === 'substructure' ? 0.5 : 0.12} />
       <Edges threshold={15} color={selected ? '#9C5B3B' : '#1b1812'} />
-      {selected && (
+      {(selected || module.locked) && (
         <Html
           position={[0, module.size.height / 2 + 0.25, 0]}
           center
           distanceFactor={14}
           className="pointer-events-none whitespace-nowrap rounded bg-ink/85 px-2 py-0.5 font-mono text-[10px] text-paper"
         >
-          {material?.name ?? 'Module'} · {module.size.width.toFixed(1)}×{module.size.height.toFixed(1)}m
+          {module.locked ? '🔒 ' : ''}{material?.name ?? 'Module'} · {module.size.width.toFixed(1)}×{module.size.height.toFixed(1)}m
         </Html>
       )}
     </mesh>
   );
 
-  if (!selected) return mesh;
+  if (!selected || module.locked) return mesh;
 
   return (
     <TransformControls

@@ -21,6 +21,7 @@ interface BuilderState {
   updateModule: (id: string, patch: Partial<SceneModule>) => void;
   removeModule: (id: string) => void;
   duplicateModule: (id: string) => void;
+  toggleLock: (id: string) => void;
   select: (id: string | null) => void;
   setSettings: (patch: Partial<SceneSettings>) => void;
   clear: () => void;
@@ -69,6 +70,13 @@ export const useBuilderStore = create<BuilderState>()(
         set((s) => ({
           modules: s.modules.filter((m) => m.id !== id),
           selectedId: s.selectedId === id ? null : s.selectedId,
+        })),
+
+      toggleLock: (id) =>
+        set((s) => ({
+          modules: s.modules.map((m) => (m.id === id ? { ...m, locked: !m.locked } : m)),
+          // Deselect when locking so TransformControls disappears
+          selectedId: s.selectedId === id && !s.modules.find((m) => m.id === id)?.locked ? null : s.selectedId,
         })),
 
       duplicateModule: (id) => {
