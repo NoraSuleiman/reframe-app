@@ -54,7 +54,7 @@ export function ModuleMesh({
       rotation={[0, module.rotationY, 0]}
       onPointerDown={(e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation();
-        if (!module.locked) onSelect(module.id);
+        onSelect(module.id); // locked modules can still be selected to show Unlock button
       }}
       castShadow
     >

@@ -118,7 +118,7 @@ export function Sidebar({
             </Button>
           </div>
           <p className="mt-2 text-caption text-stone">
-            {selected.locked ? 'Unlock to move or rotate this module.' : 'Drag the handles in the canvas to reposition.'}
+            {selected.locked ? 'This module is locked in place. Click Unlock to move it.' : 'Drag the handles in the canvas to reposition.'}
           </p>
         </Section>
       )}

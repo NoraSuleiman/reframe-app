@@ -73,11 +73,29 @@ export const useBuilderStore = create<BuilderState>()(
         })),
 
       toggleLock: (id) =>
-        set((s) => ({
-          modules: s.modules.map((m) => (m.id === id ? { ...m, locked: !m.locked } : m)),
-          // Deselect when locking so TransformControls disappears
-          selectedId: s.selectedId === id && !s.modules.find((m) => m.id === id)?.locked ? null : s.selectedId,
-        })),
+        set((s) => {
+          const target = s.modules.find((m) => m.id === id);
+          const isLocking = !target?.locked;
+          // Flush any pending drag position before locking so it locks in place
+          const pending = isLocking ? pendingPositions.get(id) : undefined;
+          if (pending) pendingPositions.delete(id);
+          const { snap: snapOn, gridSize } = s.settings;
+          return {
+            modules: s.modules.map((m) => {
+              if (m.id !== id) return m;
+              const next = { ...m, locked: !m.locked };
+              if (pending) {
+                next.position = [
+                  snap(pending[0], gridSize, snapOn),
+                  snap(pending[1], gridSize, snapOn),
+                  pending[2],
+                ];
+              }
+              return next;
+            }),
+            // Keep selected so the sidebar shows Unlock button
+          };
+        }),
 
       duplicateModule: (id) => {
         const src = get().modules.find((m) => m.id === id);
