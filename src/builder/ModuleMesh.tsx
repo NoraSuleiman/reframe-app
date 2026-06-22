@@ -62,8 +62,10 @@ export function ModuleMesh({
       showZ={false}
       size={0.7}
       onMouseDown={disableOrbit}
-      onMouseUp={() => {
-        enableOrbit();
+      onMouseUp={enableOrbit}
+      onChange={() => {
+        // Commit on every drag frame so the store stays current.
+        // This means clicking away to deselect never snaps the module back.
         const p = meshRef.current?.position;
         if (p) onCommitPosition(module.id, [p.x, p.y, p.z]);
       }}
