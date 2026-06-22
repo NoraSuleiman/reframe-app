@@ -22,8 +22,10 @@ export function ModuleMesh({
 }: ModuleMeshProps) {
   const meshRef = useRef<Mesh>(null);
   const color = material ? familyHex(material.family, material.slug) : '#9aa0a4';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const orbitControls = useThree((s) => s.controls) as any;
+  const orbitControls = useThree((s) => s.controls) as { enabled: boolean } | null;
+
+  const disableOrbit = () => { if (orbitControls) orbitControls.enabled = false; };
+  const enableOrbit = () => { if (orbitControls) orbitControls.enabled = true; };
 
   const mesh = (
     <mesh
@@ -59,11 +61,9 @@ export function ModuleMesh({
       mode="translate"
       showZ={false}
       size={0.7}
-      onDraggingChange={(e: any) => {
-        if (orbitControls) orbitControls.enabled = !e.value;
-      }}
+      onMouseDown={disableOrbit}
       onMouseUp={() => {
-        if (orbitControls) orbitControls.enabled = true;
+        enableOrbit();
         const p = meshRef.current?.position;
         if (p) onCommitPosition(module.id, [p.x, p.y, p.z]);
       }}
