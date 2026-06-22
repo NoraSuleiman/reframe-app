@@ -10,7 +10,7 @@ const base =
 
 const variants: Record<Variant, string> = {
   // Editorial: solid ink primary (the "black pill" idea, recoloured to warm ink), squared-soft
-  primary: 'bg-ink text-paper hover:bg-graphite',
+  primary: 'bg-ink !text-[#f5f2ec] hover:bg-graphite',
   secondary: 'bg-transparent text-ink border border-hairline-strong hover:bg-sand',
   ghost: 'bg-transparent text-graphite hover:bg-sand',
   accent: 'bg-clay text-white hover:bg-clay-deep',
