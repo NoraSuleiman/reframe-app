@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useThree, type ThreeEvent } from '@react-three/fiber';
 import { Edges, Html, TransformControls } from '@react-three/drei';
 import type { Mesh } from 'three';
@@ -26,12 +26,31 @@ export function ModuleMesh({
   const orbitControls = useThree((s) => s.controls) as { enabled: boolean } | null;
 
   const disableOrbit = () => { if (orbitControls) orbitControls.enabled = false; };
-  const enableOrbit = () => { if (orbitControls) orbitControls.enabled = true; };
+  const enableOrbit  = () => { if (orbitControls) orbitControls.enabled = true; };
 
+  // Sync position from the store → mesh imperatively.
+  // We NEVER pass `position` as a React prop so R3F never resets it mid-drag.
+  // This effect runs on mount (to set the initial position) and whenever the
+  // stored position changes while the module is NOT selected (e.g. after undo,
+  // or after a fresh page load from localStorage).
+  const [px, py, pz] = module.position;
+  useLayoutEffect(() => {
+    if (!selected) {
+      meshRef.current?.position.set(px, py, pz);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [px, py, pz, selected]);
+
+  // Also set on first mount regardless of selected state.
+  useLayoutEffect(() => {
+    meshRef.current?.position.set(...module.position);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // NOTE: no `position` prop on <mesh> — R3F won't touch it during reconciliation.
   const mesh = (
     <mesh
       ref={meshRef}
-      position={module.position}
       rotation={[0, module.rotationY, 0]}
       onPointerDown={(e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation();
@@ -65,7 +84,6 @@ export function ModuleMesh({
       onMouseDown={disableOrbit}
       onMouseUp={() => {
         enableOrbit();
-        // Flush pending position to the store now that drag is done.
         const p = meshRef.current?.position;
         if (p) {
           pendingPositions.delete(module.id);
@@ -73,8 +91,7 @@ export function ModuleMesh({
         }
       }}
       onChange={() => {
-        // Track position in a plain Map — no Zustand update, no React re-render,
-        // so TransformControls can drag freely without being interrupted.
+        // Track position without touching Zustand — no re-render, no R3F interference.
         const p = meshRef.current?.position;
         if (p) pendingPositions.set(module.id, [p.x, p.y, p.z]);
       }}
