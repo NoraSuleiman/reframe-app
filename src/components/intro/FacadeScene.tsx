@@ -322,9 +322,9 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
       <Environment preset="warehouse" background={false} />
 
       {/* ── Lighting: sun key + soft fill — env map handles ambient/IBL ─── */}
-      {/* Key: soft warm cream — like afternoon sun through linen */}
+      {/* Key: orange studio spot from front-right-above */}
       <directionalLight
-        position={[5, 9, 12]} intensity={1.3} color="#F5D9A8"
+        position={[5, 9, 12]} intensity={1.5} color="#FF7B20"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-10} shadow-camera-right={10}
@@ -332,12 +332,14 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
         shadow-camera-near={1}  shadow-camera-far={80}
         shadow-bias={-0.0008}
       />
-      {/* Fill: warm amber from opposite side — no cool tones */}
-      <directionalLight position={[-5, 4, 9]} intensity={0.50} color="#E8B87A" />
-      {/* Ground bounce: deep terracotta warmth from below */}
-      <pointLight position={[0, -3, 7]} intensity={0.65} color="#C85820" distance={20} decay={2} />
-      {/* Ambient: creamy warm, keeps shadows from going cold */}
-      <ambientLight intensity={0.18} color="#F2D8B0" />
+      {/* Fill: deep amber — shadow side stays warm not dark */}
+      <directionalLight position={[-5, 4, 9]} intensity={0.60} color="#E85A00" />
+      {/* Rim: burnt orange from behind — separates panels from slab */}
+      <directionalLight position={[2, 6, -10]} intensity={0.40} color="#FF6010" />
+      {/* Ground bounce: warm orange from below */}
+      <pointLight position={[0, -3, 7]} intensity={0.80} color="#FF5500" distance={20} decay={2} />
+      {/* Ambient: low warm orange base */}
+      <ambientLight intensity={0.20} color="#E87030" />
 
       {/* ── Shadow-receiving ground plane ───────────────────────────────── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.75, 0]} receiveShadow>
