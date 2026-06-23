@@ -18,10 +18,10 @@ export function HomeFacade() {
         style={{ background: 'transparent' }}
       >
         <Environment preset="warehouse" background={false} />
-        <directionalLight position={[5, 9, 12]} intensity={1.6} color="#FFF4E8" castShadow />
-        <directionalLight position={[-5, 4, 9]} intensity={0.55} color="#DDE8F4" />
-        <pointLight position={[0, -3, 7]} intensity={0.5} color="#C86030" distance={20} decay={2} />
-        <ambientLight intensity={0.10} color="#F0E8E0" />
+        <directionalLight position={[5, 9, 12]} intensity={1.3} color="#F5D9A8" castShadow />
+        <directionalLight position={[-5, 4, 9]} intensity={0.50} color="#E8B87A" />
+        <pointLight position={[0, -3, 7]} intensity={0.65} color="#C85820" distance={20} decay={2} />
+        <ambientLight intensity={0.18} color="#F2D8B0" />
         <AssembledFacade />
         <OrbitControls
           enableZoom={false}
