@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
+import * as THREE from 'three'
 import { FacadeScene } from './FacadeScene'
 
 interface IntroAnimationProps {
@@ -33,7 +34,12 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
       <Canvas
         shadows
         camera={{ position: [8, 6, 8], fov: 42, near: 0.1, far: 200 }}
-        gl={{ antialias: true, alpha: false }}
+        gl={{
+          antialias: true,
+          alpha: false,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.1,
+        }}
         style={{ background: '#F7F5F2' }}
       >
         <FacadeScene onFadeStart={handleFadeStart} onComplete={handleComplete} />

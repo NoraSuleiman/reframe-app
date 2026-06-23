@@ -5,7 +5,7 @@
  */
 import { useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Edges } from '@react-three/drei'
+import { Edges, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
@@ -183,7 +183,7 @@ function buildPieces(): Piece[] {
 
 export const PIECES = buildPieces()
 
-// ─── Material component ───────────────────────────────────────────────────────
+// ─── Material component — all meshPhysicalMaterial for PBR realism ───────────
 function PieceMat({ p, opacity = p.opacity }: { p: Piece; opacity?: number }) {
   if (p.matType === 'terra') {
     return (
@@ -191,11 +191,17 @@ function PieceMat({ p, opacity = p.opacity }: { p: Piece; opacity?: number }) {
         color={p.color}
         roughness={p.roughness}
         metalness={0}
-        sheen={0.35}
-        sheenRoughness={0.85}
-        sheenColor="#4A1C08"
+        // Sheen: fired-clay micro-sheen at grazing angles
+        sheen={0.45}
+        sheenRoughness={0.75}
+        sheenColor="#3A1005"
+        // Clearcoat: very subtle kiln-glaze finish
+        clearcoat={0.10}
+        clearcoatRoughness={0.82}
+        // IOR: terracotta ≈ 1.55 (fired earthenware)
+        ior={1.55}
         emissive={p.color}
-        emissiveIntensity={0.04}
+        emissiveIntensity={0.035}
         opacity={opacity}
         transparent={opacity < 1}
       />
@@ -203,23 +209,26 @@ function PieceMat({ p, opacity = p.opacity }: { p: Piece; opacity?: number }) {
   }
   if (p.matType === 'alum') {
     return (
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color={p.color}
         roughness={p.roughness}
-        metalness={p.metalness}
-        envMapIntensity={1.2}
+        metalness={0.98}
+        // Clearcoat: anodised aluminium has a hard transparent oxide layer
+        clearcoat={0.65}
+        clearcoatRoughness={0.05}
+        reflectivity={1.0}
         opacity={opacity}
         transparent={opacity < 1}
       />
     )
   }
-  // steel
+  // steel — hot-rolled dark steel
   return (
-    <meshStandardMaterial
+    <meshPhysicalMaterial
       color={p.color}
       roughness={p.roughness}
-      metalness={p.metalness}
-      envMapIntensity={0.8}
+      metalness={0.92}
+      reflectivity={0.9}
       opacity={opacity}
       transparent={opacity < 1}
     />
@@ -306,13 +315,16 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
 
   return (
     <>
-      {/* Scene background — must be set here so WebGL clears to beige, not black */}
+      {/* Scene background */}
       <color attach="background" args={['#F2EDE6']} />
 
-      {/* ── Studio lighting ───────────────────────────────────────────────── */}
-      {/* Key: warm from front-right-above */}
+      {/* HDR environment — provides realistic reflections on metals and clearcoat */}
+      <Environment preset="warehouse" background={false} />
+
+      {/* ── Lighting: sun key + soft fill — env map handles ambient/IBL ─── */}
+      {/* Sun: warm directional key, casts crisp shadows */}
       <directionalLight
-        position={[5, 8, 14]} intensity={2.0} color="#FFF6EE"
+        position={[5, 9, 12]} intensity={1.6} color="#FFF4E8"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-10} shadow-camera-right={10}
@@ -320,16 +332,12 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
         shadow-camera-near={1}  shadow-camera-far={80}
         shadow-bias={-0.0008}
       />
-      {/* Fill A: front-left — lifts shadow side of panels */}
-      <directionalLight position={[-6, 4, 12]} intensity={1.1} color="#EEF3F8" />
-      {/* Fill B: direct front — ensures arch top faces are visible */}
-      <directionalLight position={[0, 2, 14]} intensity={0.7} color="#F8F4EE" />
-      {/* Rim: upper-left-behind — edge separation */}
-      <directionalLight position={[-3, 7, -10]} intensity={0.5} color="#D0E4F0" />
-      {/* Warm ground bounce */}
-      <pointLight position={[0, -3.5, 7]} intensity={0.8} color="#C87038" distance={22} decay={2} />
-      {/* Ambient: minimal, let directionals define form */}
-      <ambientLight intensity={0.30} color="#EBE4DA" />
+      {/* Soft fill from opposite side — cool sky tone */}
+      <directionalLight position={[-5, 4, 9]} intensity={0.55} color="#DDE8F4" />
+      {/* Warm ground bounce — terracotta warmth from below */}
+      <pointLight position={[0, -3, 7]} intensity={0.5} color="#C86030" distance={20} decay={2} />
+      {/* Keep ambient minimal — env map provides the rest */}
+      <ambientLight intensity={0.10} color="#F0E8E0" />
 
       {/* ── Shadow-receiving ground plane ───────────────────────────────── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.75, 0]} receiveShadow>

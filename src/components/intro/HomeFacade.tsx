@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, Environment } from '@react-three/drei'
+import * as THREE from 'three'
 import { AssembledFacade } from './FacadeScene'
 
 export function HomeFacade() {
@@ -8,14 +9,19 @@ export function HomeFacade() {
       <Canvas
         shadows
         camera={{ position: [0, 0, 9], fov: 38, near: 0.1, far: 100 }}
-        gl={{ antialias: true, alpha: true }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.1,
+        }}
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.20} color="#EBE4DA" />
-        <directionalLight position={[6, 10, 12]} intensity={2.2} color="#FFF6EE" castShadow />
-        <directionalLight position={[-7, 5, 10]} intensity={0.9} color="#EEF3F8" />
-        <directionalLight position={[-3, 8, -10]} intensity={0.55} color="#D0E4F0" />
-        <pointLight position={[0, -3.5, 7]} intensity={0.8} color="#C87038" distance={22} decay={2} />
+        <Environment preset="warehouse" background={false} />
+        <directionalLight position={[5, 9, 12]} intensity={1.6} color="#FFF4E8" castShadow />
+        <directionalLight position={[-5, 4, 9]} intensity={0.55} color="#DDE8F4" />
+        <pointLight position={[0, -3, 7]} intensity={0.5} color="#C86030" distance={20} decay={2} />
+        <ambientLight intensity={0.10} color="#F0E8E0" />
         <AssembledFacade />
         <OrbitControls
           enableZoom={false}
