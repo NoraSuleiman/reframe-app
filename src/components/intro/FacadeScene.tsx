@@ -136,10 +136,12 @@ function buildPieces(): Piece[] {
     const floorIdx = Math.floor(idx / 3)
     const withinFloor = idx % 3
 
-    let ox = 0, oy = 0, oz = 2.5
-    if (bi === 2) { ox = 11;  oz = 2.5 }   // right bay: from right
-    else if (bi === 0) { ox = -11; oz = 2.5 }   // left bay:  from left
-    else              { oy = 9 + fi * 0.6; oz = 1.5 }  // center:    from above
+    // All three columns flow in from the sides — none start inside the frame.
+    // oz keeps panels in front of the mullion plane during lateral travel.
+    let ox = 0, oy = 0, oz = 3.5
+    if (bi === 2) { ox = 14 }              // right bay:  from far right
+    else if (bi === 0) { ox = -14 }        // left bay:   from far left
+    else              { ox = -11; oz = 3.5 } // centre bay: also from left, less offset
 
     ps.push({
       key: `arch-${fi}-${bi}`,
