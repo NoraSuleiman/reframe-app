@@ -1,8 +1,9 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SiteLayout, FullLayout } from '@/components/layout/Layout';
 import { RequireAuth } from '@/components/RequireAuth';
 import { LoadingBlock } from '@/components/ui/States';
+import { IntroAnimation } from '@/components/intro/IntroAnimation';
 
 import Home from '@/routes/Home';
 import Marketplace from '@/routes/Marketplace';
@@ -20,6 +21,19 @@ const Builder = lazy(() => import('@/routes/Builder'));
 const Admin = lazy(() => import('@/routes/Admin'));
 
 export default function App() {
+  const [introDone, setIntroDone] = useState(
+    () => sessionStorage.getItem('rf_intro') === '1',
+  );
+
+  function handleIntroComplete() {
+    sessionStorage.setItem('rf_intro', '1');
+    setIntroDone(true);
+  }
+
+  if (!introDone) {
+    return <IntroAnimation onComplete={handleIntroComplete} />;
+  }
+
   return (
     <Routes>
       <Route element={<SiteLayout />}>

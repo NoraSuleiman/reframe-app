@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMaterials } from '@/hooks/useMaterials';
 import { MaterialCard } from '@/components/MaterialCard';
@@ -6,6 +6,10 @@ import { Swatch } from '@/components/Swatch';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { LoadingBlock } from '@/components/ui/States';
 import type { MaterialFamily } from '@/domain/types';
+
+const HomeFacade = lazy(() =>
+  import('@/components/intro/HomeFacade').then((m) => ({ default: m.HomeFacade })),
+);
 
 const HERO_TILES: { family: MaterialFamily; seed: string }[] = [
   { family: 'panel', seed: 'terracotta-rainscreen-panels' },
@@ -87,14 +91,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Façade-sample mosaic */}
+          {/* 3D façade hero */}
           <div className="relative">
-            <div className="grid grid-cols-3 gap-2 rounded-xl border border-hairline bg-surface-raised p-2 shadow-card">
-              {HERO_TILES.map((t, i) => (
-                <div key={i} className="aspect-square overflow-hidden rounded">
-                  <Swatch family={t.family} seed={t.seed} />
-                </div>
-              ))}
+            <div className="aspect-[4/5] overflow-hidden rounded-xl border border-hairline bg-surface-raised shadow-card lg:aspect-[3/4]">
+              <Suspense fallback={<div className="h-full w-full animate-pulse bg-surface" />}>
+                <HomeFacade />
+              </Suspense>
             </div>
             <div className="absolute -bottom-4 -left-4 rounded-lg border border-hairline bg-surface-raised px-4 py-3 shadow-card">
               <p className="font-display text-h3 leading-none">≈2,400 m²</p>
