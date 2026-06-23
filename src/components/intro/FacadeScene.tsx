@@ -49,7 +49,7 @@ const _DEPTH  = 0.12
 const _shape = new THREE.Shape()
 _shape.moveTo(-_AR, -_AH)
 _shape.lineTo(-_AR,  _SPRING)
-_shape.absarc(0, _SPRING, _AR, Math.PI, 0, false)
+_shape.absarc(0, _SPRING, _AR, Math.PI, 0, true)
 _shape.lineTo( _AR, -_AH)
 _shape.closePath()
 
@@ -130,8 +130,10 @@ function buildPieces(): Piece[] {
       key: `arch-${fi}-${bi}`,
       px: BAYS[bi], py: FLOOR_Y[fi], pz: 0.09,
       ox: 0,
-      oy: 0.5 + fi * 0.15,
-      oz: 9 + (2 - fi) * 1.6 + bi * 0.5,
+      oy: 0.4 + fi * 0.1,
+      // Keep panels visibly in front of the frame but within the orbit radius (14)
+      // so they show as floating elements during the explode orbit phase.
+      oz: 4.5 + (2 - fi) * 1.4 + bi * 0.7,
       sx: PANEL_W, sy: FLOOR_H, sz: _DEPTH,
       color: P.terra[panelIdx % 9],
       opacity: 1,
@@ -290,10 +292,13 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
 
   return (
     <>
-      {/* ── Studio lighting: key + fill + rim + bounce ───────────────────── */}
-      {/* Key: warm front-right-above — illuminates arch face & casts clean shadows */}
+      {/* Scene background — must be set here so WebGL clears to beige, not black */}
+      <color attach="background" args={['#F2EDE6']} />
+
+      {/* ── Studio lighting ───────────────────────────────────────────────── */}
+      {/* Key: warm from front-right-above */}
       <directionalLight
-        position={[6, 10, 12]} intensity={2.4} color="#FFF6EE"
+        position={[5, 8, 14]} intensity={2.0} color="#FFF6EE"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-10} shadow-camera-right={10}
@@ -301,14 +306,16 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
         shadow-camera-near={1}  shadow-camera-far={80}
         shadow-bias={-0.0008}
       />
-      {/* Fill: front-left — ensures panel faces never fall fully dark */}
-      <directionalLight position={[-7, 5, 10]} intensity={1.0} color="#EEF3F8" />
-      {/* Rim: upper-left-behind — separates each panel edge from background */}
-      <directionalLight position={[-3, 8, -10]} intensity={0.65} color="#D0E4F0" />
-      {/* Low warm: ground-bounce terracotta warmth from below */}
-      <pointLight position={[0, -3.5, 7]} intensity={0.9} color="#C87038" distance={22} decay={2} />
-      {/* Ambient: low floor so directionals do the defining */}
-      <ambientLight intensity={0.20} color="#EBE4DA" />
+      {/* Fill A: front-left — lifts shadow side of panels */}
+      <directionalLight position={[-6, 4, 12]} intensity={1.1} color="#EEF3F8" />
+      {/* Fill B: direct front — ensures arch top faces are visible */}
+      <directionalLight position={[0, 2, 14]} intensity={0.7} color="#F8F4EE" />
+      {/* Rim: upper-left-behind — edge separation */}
+      <directionalLight position={[-3, 7, -10]} intensity={0.5} color="#D0E4F0" />
+      {/* Warm ground bounce */}
+      <pointLight position={[0, -3.5, 7]} intensity={0.8} color="#C87038" distance={22} decay={2} />
+      {/* Ambient: minimal, let directionals define form */}
+      <ambientLight intensity={0.30} color="#EBE4DA" />
 
       {/* ── Shadow-receiving ground plane ───────────────────────────────── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.75, 0]} receiveShadow>
