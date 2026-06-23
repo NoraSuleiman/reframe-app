@@ -67,7 +67,7 @@ function c01(v: number) { return v < 0 ? 0 : v > 1 ? 1 : v }
 function prog(t: number, t0: number, t1: number) { return c01((t - t0) / (t1 - t0)) }
 
 // ─── Phase timing ─────────────────────────────────────────────────────────────
-const PH = { explodeEnd: 3.2, assembleEnd: 8.2, buildingEnd: 10.8, fadeStart: 10.8, total: 12.2 }
+const PH = { explodeEnd: 1.6, assembleEnd: 7.8, buildingEnd: 10.5, fadeStart: 10.5, total: 12.0 }
 
 // ─── Camera (module-level, no per-frame allocation) ───────────────────────────
 const ORBIT_R = 14, ORBIT_H = 8, ORBIT_SPEED = 0.09, ORBIT_START = Math.PI * 0.18
@@ -92,31 +92,34 @@ export interface Piece {
 function buildPieces(): Piece[] {
   const ps: Piece[] = []
 
+  // Back slab rises from below — invisible against dark bg until it floats up
   ps.push({
     key: 'back', px: 0, py: 0, pz: -0.38,
-    ox: 0, oy: 0, oz: -24,
+    ox: 0, oy: -22, oz: 0,
     sx: 6.5, sy: 7.6, sz: 0.06,
     color: P.steelDk, opacity: 1, roughness: 0.60, metalness: 0.82,
-    matType: 'steel', edges: true, t0: 0, t1: 0.18,
+    matType: 'steel', edges: true, t0: 0, t1: 0.20,
   })
 
+  // Beams rise from below, staggered
   ;[-1.15, 1.15].forEach((y, i) => {
     ps.push({
       key: `beam-${i}`, px: 0, py: y, pz: -0.22,
-      ox: 0, oy: 0, oz: -20,
+      ox: 0, oy: -20, oz: 0,
       sx: 6.3, sy: 0.22, sz: 0.40,
       color: P.steel, opacity: 1, roughness: 0.58, metalness: 0.85,
-      matType: 'steel', t0: 0.05, t1: 0.23,
+      matType: 'steel', t0: 0.06 + i * 0.03, t1: 0.24 + i * 0.03,
     })
   })
 
+  // Mullions: left pair slides from left, right pair from right — pinch inward
   MULLION_X.forEach((x, i) => {
     ps.push({
       key: `mul-${i}`, px: x, py: 0, pz: 0,
-      ox: -18, oy: 0, oz: 0,
+      ox: i < 2 ? -20 : 20, oy: 0, oz: 0,
       sx: MUL_W, sy: 7.4, sz: 0.20,
       color: P.alum, opacity: 1, roughness: 0.14, metalness: 0.92,
-      matType: 'alum', t0: 0.18 + i * 0.025, t1: 0.38 + i * 0.025,
+      matType: 'alum', t0: 0.20 + i * 0.025, t1: 0.40 + i * 0.025,
     })
   })
 
@@ -315,16 +318,17 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
 
   return (
     <>
-      {/* Scene background */}
-      <color attach="background" args={['#F2EDE6']} />
+      {/* Dark warm background */}
+      <color attach="background" args={['#0F0C09']} />
+      <fog attach="fog" args={['#0F0C09', 22, 55]} />
 
-      {/* HDR environment — provides realistic reflections on metals and clearcoat */}
+      {/* HDR environment — realistic reflections on metals/clearcoat */}
       <Environment preset="warehouse" background={false} />
 
-      {/* ── Lighting: sun key + soft fill — env map handles ambient/IBL ─── */}
-      {/* Key: orange studio spot from front-right-above */}
+      {/* ── Dark orange studio lighting ───────────────────────────────── */}
+      {/* Key: strong warm orange spot — main drama */}
       <directionalLight
-        position={[5, 9, 12]} intensity={1.5} color="#FF7B20"
+        position={[5, 9, 12]} intensity={2.0} color="#FF6A10"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-10} shadow-camera-right={10}
@@ -332,14 +336,14 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
         shadow-camera-near={1}  shadow-camera-far={80}
         shadow-bias={-0.0008}
       />
-      {/* Fill: deep amber — shadow side stays warm not dark */}
-      <directionalLight position={[-5, 4, 9]} intensity={0.60} color="#E85A00" />
-      {/* Rim: burnt orange from behind — separates panels from slab */}
-      <directionalLight position={[2, 6, -10]} intensity={0.40} color="#FF6010" />
-      {/* Ground bounce: warm orange from below */}
-      <pointLight position={[0, -3, 7]} intensity={0.80} color="#FF5500" distance={20} decay={2} />
-      {/* Ambient: low warm orange base */}
-      <ambientLight intensity={0.20} color="#E87030" />
+      {/* Side fill: deep amber, very dim — keeps shadow side just readable */}
+      <directionalLight position={[-5, 3, 8]} intensity={0.35} color="#C04400" />
+      {/* Rim: deep orange from behind — carves edges out of the dark */}
+      <directionalLight position={[2, 5, -10]} intensity={0.55} color="#FF4800" />
+      {/* Ground bounce: deep red-orange from below */}
+      <pointLight position={[0, -3, 6]} intensity={1.0} color="#FF3C00" distance={18} decay={2} />
+      {/* Ambient: near-zero — dark scenes need real shadows */}
+      <ambientLight intensity={0.06} color="#C05010" />
 
       {/* ── Shadow-receiving ground plane ───────────────────────────────── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.75, 0]} receiveShadow>

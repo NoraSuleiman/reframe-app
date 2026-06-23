@@ -29,7 +29,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   }, [onComplete])
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#F7F5F2]">
+    <div className="fixed inset-0 z-[9999] bg-[#0F0C09]">
       {/* Three.js canvas — full viewport */}
       <Canvas
         shadows
@@ -38,9 +38,9 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
           antialias: true,
           alpha: false,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.1,
+          toneMappingExposure: 1.2,
         }}
-        style={{ background: '#F7F5F2' }}
+        style={{ background: '#0F0C09' }}
       >
         <FacadeScene onFadeStart={handleFadeStart} onComplete={handleComplete} />
       </Canvas>
@@ -51,10 +51,10 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
         style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.8s ease' }}
       >
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#8A8580]">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A08060]">
             Reclaimed façade marketplace · Sydney
           </p>
-          <h1 className="mt-2 font-display text-4xl leading-tight text-[#2A2825] sm:text-5xl">
+          <h1 className="mt-2 font-display text-4xl leading-tight text-[#F0D0A0] sm:text-5xl">
             ReFrame
           </h1>
         </div>
@@ -67,10 +67,10 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
       >
         {['ReHome', 'ReUse', 'ReCycle'].map((label) => (
           <div key={label} className="flex flex-col items-center gap-1">
-            <span className="rounded border border-[#2A2825] bg-[#2A2825] px-3 py-0.5 font-display text-xs text-[#F7F5F2] sm:text-sm">
+            <span className="rounded border border-[#C07040]/60 bg-[#1C1410] px-3 py-0.5 font-display text-xs text-[#E0B080] sm:text-sm">
               {label}
             </span>
-            <div className="h-3 w-px bg-[#2A2825]/30" />
+            <div className="h-3 w-px bg-[#C07040]/30" />
           </div>
         ))}
       </div>
@@ -79,15 +79,15 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
       {!fading && (
         <button
           onClick={() => { handleFadeStart(); setTimeout(handleComplete, 1300) }}
-          className="absolute bottom-10 right-10 rounded border border-[#8A8580]/40 bg-[#F7F5F2]/80 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-[#8A8580] backdrop-blur-sm transition-opacity hover:opacity-70 sm:bottom-14 sm:right-14"
+          className="absolute bottom-10 right-10 rounded border border-[#C07040]/40 bg-[#1C1410]/80 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-[#A07040] backdrop-blur-sm transition-opacity hover:opacity-70 sm:bottom-14 sm:right-14"
         >
           Skip →
         </button>
       )}
 
-      {/* White fade overlay */}
+      {/* Dark fade overlay */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[#F7F5F2]"
+        className="pointer-events-none absolute inset-0 bg-[#0F0C09]"
         style={{ opacity: overlayOpacity }}
       />
     </div>
