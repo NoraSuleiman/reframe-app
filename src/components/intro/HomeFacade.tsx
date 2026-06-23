@@ -11,10 +11,11 @@ export function HomeFacade() {
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.65} color="#F0EBE4" />
-        <directionalLight position={[4, 6, 8]}   intensity={1.3} castShadow />
-        <directionalLight position={[-4, 2, -4]} intensity={0.4}  color="#D8C8B8" />
-        <pointLight       position={[0, 0, 10]}  intensity={0.25} color="#EEF4F6" />
+        <ambientLight intensity={0.20} color="#EBE4DA" />
+        <directionalLight position={[6, 10, 12]} intensity={2.2} color="#FFF6EE" castShadow />
+        <directionalLight position={[-7, 5, 10]} intensity={0.9} color="#EEF3F8" />
+        <directionalLight position={[-3, 8, -10]} intensity={0.55} color="#D0E4F0" />
+        <pointLight position={[0, -3.5, 7]} intensity={0.8} color="#C87038" distance={22} decay={2} />
         <AssembledFacade />
         <OrbitControls
           enableZoom={false}
