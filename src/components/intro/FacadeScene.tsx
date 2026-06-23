@@ -120,20 +120,31 @@ function buildPieces(): Piece[] {
     })
   })
 
-  // 9 terracotta arch panels — cascade top-right → bottom-left
-  // Panels come straight in from in front (oz only) so they never clip through mullions.
-  // Slight oy lift gives a "slotting down into frame" feel.
-  const order = [2, 1, 0].flatMap(fi => [2, 1, 0].map(bi => ({ fi, bi })))
-  order.forEach(({ fi, bi }, idx) => {
+  // 9 terracotta arch panels:
+  // - Left bay (bi=0): slides in from the LEFT  (ox=-11)
+  // - Right bay (bi=2): slides in from the RIGHT (ox=+11)
+  // - Center bay (bi=1): drops from ABOVE        (oy=+9)
+  // All panels have a moderate oz so they travel in FRONT of mullions and never clip.
+  // Cascade order: floor-by-floor bottom→top, sides arrive first then center drops.
+  const ARCH_ORDER: [number, number][] = [
+    [0, 2], [0, 0], [0, 1],
+    [1, 2], [1, 0], [1, 1],
+    [2, 2], [2, 0], [2, 1],
+  ]
+  ARCH_ORDER.forEach(([fi, bi], idx) => {
     const panelIdx = fi * 3 + bi
+    const floorIdx = Math.floor(idx / 3)
+    const withinFloor = idx % 3
+
+    let ox = 0, oy = 0, oz = 2.5
+    if (bi === 2) { ox = 11;  oz = 2.5 }   // right bay: from right
+    else if (bi === 0) { ox = -11; oz = 2.5 }   // left bay:  from left
+    else              { oy = 9 + fi * 0.6; oz = 1.5 }  // center:    from above
+
     ps.push({
       key: `arch-${fi}-${bi}`,
       px: BAYS[bi], py: FLOOR_Y[fi], pz: 0.09,
-      ox: 0,
-      oy: 0.4 + fi * 0.1,
-      // Keep panels visibly in front of the frame but within the orbit radius (14)
-      // so they show as floating elements during the explode orbit phase.
-      oz: 4.5 + (2 - fi) * 1.4 + bi * 0.7,
+      ox, oy, oz,
       sx: PANEL_W, sy: FLOOR_H, sz: _DEPTH,
       color: P.terra[panelIdx % 9],
       opacity: 1,
@@ -141,7 +152,8 @@ function buildPieces(): Piece[] {
       metalness: 0,
       matType: 'terra',
       edges: true, isArch: true,
-      t0: 0.34 + idx * 0.028, t1: 0.58 + idx * 0.028,
+      t0: 0.34 + floorIdx * 0.065 + withinFloor * 0.022,
+      t1: 0.34 + floorIdx * 0.065 + withinFloor * 0.022 + 0.22,
     })
   })
 
