@@ -57,10 +57,10 @@ export const ARCH_PANEL_GEOM = new THREE.ExtrudeGeometry(_shape, { depth: _DEPTH
 ARCH_PANEL_GEOM.translate(0, 0, -_DEPTH / 2)
 
 // ─── Easing ───────────────────────────────────────────────────────────────────
-function easeOutBack(t: number, s = 0.16): number {
+// easeOutExpo: fast initial movement that smoothly settles — no overshoot
+function easeOutExpo(t: number): number {
   if (t <= 0) return 0; if (t >= 1) return 1
-  const c1 = 1 + s, c3 = c1 + s
-  return 1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2
+  return 1 - Math.pow(2, -10 * t)
 }
 function easeInOutCubic(t: number) { return t < 0.5 ? 4*t*t*t : 1-(-2*t+2)**3/2 }
 function c01(v: number) { return v < 0 ? 0 : v > 1 ? 1 : v }
@@ -286,7 +286,11 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
     for (const p of PIECES) {
       const mesh = meshMap.current.get(p.key)
       if (!mesh) continue
-      const e = easeOutBack(c01((asmP - p.t0) / (p.t1 - p.t0)))
+      // Hide completely until this piece's animation window begins
+      const started = t >= PH.explodeEnd && asmP >= p.t0
+      if (!started) { mesh.visible = false; continue }
+      mesh.visible = true
+      const e = easeOutExpo(c01((asmP - p.t0) / (p.t1 - p.t0)))
       mesh.position.x = p.px + p.ox * (1 - e)
       mesh.position.y = p.py + p.oy * (1 - e)
       mesh.position.z = p.pz + p.oz * (1 - e)
@@ -358,6 +362,7 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
             key={p.key}
             ref={setRef(p.key)}
             position={[p.px + p.ox, p.py + p.oy, p.pz + p.oz]}
+            visible={false}
             geometry={ARCH_PANEL_GEOM}
             castShadow receiveShadow
           >
@@ -369,6 +374,7 @@ export function FacadeScene({ onFadeStart, onComplete }: FacadeSceneProps) {
             key={p.key}
             ref={setRef(p.key)}
             position={[p.px + p.ox, p.py + p.oy, p.pz + p.oz]}
+            visible={false}
             castShadow receiveShadow
           >
             <boxGeometry args={[p.sx, p.sy, p.sz]} />
