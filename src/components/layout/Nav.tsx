@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Logo } from './Logo';
-import { Button, ButtonLink } from '@/components/ui/Button';
+
 import { usePaletteStore } from '@/store/palette';
 import { useCartStore } from '@/store/cart';
 import { useAuthStore } from '@/store/auth';
@@ -11,7 +11,6 @@ import { cn } from '@/lib/cn';
 const NAV_LINKS = [
   { to: '/marketplace', label: 'Marketplace' },
   { to: '/builder', label: '3D Builder' },
-  { to: '/contact', label: 'Contact' },
 ];
 
 export function Nav() {
@@ -73,7 +72,7 @@ export function Nav() {
           <IndicatorLink to="/palette" label="Palette" count={paletteCount} icon="palette" />
           <IndicatorLink to="/cart" label="Cart" count={cartCount} icon="cart" />
 
-          {profile ? (
+          {profile?.role === 'admin' && (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <button
@@ -98,7 +97,7 @@ export function Nav() {
                   </div>
                   <Separator />
                   <Item to="/palette">My palette</Item>
-                  {profile.role === 'admin' && <Item to="/admin">Admin</Item>}
+                  <Item to="/admin">Admin</Item>
                   <Separator />
                   <DropdownMenu.Item
                     onSelect={() => signOut()}
@@ -109,15 +108,6 @@ export function Nav() {
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
-          ) : (
-            <div className="ml-1 hidden items-center gap-1 sm:flex">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
-                Log in
-              </Button>
-              <ButtonLink to="/signup" variant="primary" size="sm">
-                Sign up
-              </ButtonLink>
-            </div>
           )}
         </div>
       </div>
